@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'selectplace/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'selectplace/css/main.css' %}">
+</head>
+<body>
+    <header class="text-white bg-success">
+        <h1 class="my-2 ml-3">Domovichok</h1>
+    </header>
+    <div class="container-fluid">
+    {% block content %}
+    {% endblock %}
+    </div>
+    <footer class="text-white bg-success">
+        Contact us: Irn_Valercheg@gmail.cpm
+    </footer>
+</body>
+</html>
