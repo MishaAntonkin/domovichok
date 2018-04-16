@@ -1,4 +1,5 @@
 import requests
+import json
 
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -16,6 +17,13 @@ class FillData(View):
 
     def post(self, request):
         form = PlaceFilterForm(request.POST)
+        print(request.body)
+        print(json.loads(request.body))
+        print(request.POST.dict())
+        houses = form.data.get('houses')
+        criterias = form.data.get('cri')
+        r = requests.post('http://127.0.0.1:5000/', timeout=10, data=request.body)
+        print(r.json())
         if form.is_valid():
             r = requests.post('http://127.0.0.1:5000/', data=form.cleaned_data)
             print(r.text)

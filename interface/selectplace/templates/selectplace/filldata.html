@@ -9,9 +9,12 @@
             {{form.as_p}}
             <p>
                 <label></label>
-                <input class="btn btn-success" type="submit">
+                <div class="btn btn-success" id="send-data">Send</div>
             </p>
         </form>
     </div>
 </div>
+<script>
+    this_url = '{% url "selectplace:filldata" %}';
+</script>
 {% endblock %}
