@@ -39,13 +39,10 @@ def get_data_from_page(bsObj, data):
     Получаем данные с конкретной страницы
     """
     for house_info in bsObj.findAll("div", {"class": "realty-card-inner"}):
-        name = get_name(house_info)
-        price = get_price(house_info)
-        area = get_area(house_info)
+        house_data = {"name": get_name(house_info), "price": get_price(house_info),
+                      "area": get_area(house_info)}
 
-        data[name] = {}
-        data[name]["price"] = price
-        data[name]["area"] = area
+        data.append(house_data)
 
     return data
 
@@ -61,7 +58,7 @@ def check_next_page_exist(bsObj):
 
 
 def get_data():
-    data = {}
+    data = []
     print("Сканирем страницу № 1")
     bsObj = BeautifulSoup(get_html(), "html.parser")
     get_data_from_page(bsObj, data)
