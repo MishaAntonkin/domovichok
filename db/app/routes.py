@@ -4,6 +4,7 @@ from app import app, db
 from .models import Flat
 
 
+
 @app.route('/', methods=['GET'])
 def main():
     return 'main'
@@ -13,9 +14,37 @@ def main():
 def get_houses():
     flats = Flat.query.all()
     return_list = []
-    for fl in  flats:
+
+    for fl in flats:
         return_list.append(fl.row2dict())
     return jsonify(return_list), 200
+
+
+@app.route('/houses/filter/', methods=['GET'])
+def get_houses_filter():
+    needed_params = ['price_gte', 'price_lte', 'district']
+    query_filter = []
+    for param in needed_params:
+        cur_param = request.args.get(param)
+        if cur_param == None:
+            continue
+        if param == 'price_gte':
+            query_filter.append(Flat.price > cur_param)
+        elif param == 'price_lte':
+            query_filter.append(Flat.price < cur_param)
+        elif param == 'district':
+            query_filter.append(Flat.district == cur_param)
+    #  need only for test, later delete
+    for i in request.args:
+        print(i)
+        print(request.args[i])
+    print(query_filter)
+    #
+    flats = Flat.query.filter(*query_filter)
+    flats_list = []
+    for fl in flats:
+        flats_list.append(fl.row2dict())
+    return jsonify(flats_list), 200
 
 
 @app.route('/houses/<int:id>/', methods=['GET'])
