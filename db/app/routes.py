@@ -2,7 +2,7 @@ from flask import json, request, jsonify
 
 from app import app, db
 from .models import Flat
-
+from .validation import area_to_float, price_to_float, get_currency
 
 
 @app.route('/', methods=['GET'])
@@ -63,14 +63,15 @@ def save_houses():
     data = request.json
     try:
         for flat in data:
-            fl = Flat(district=flat['district'], name=flat['name'], price=flat['price'])
+            fl = Flat(district='default', name=flat['name'], currency=get_currency(flat['price']),
+                      price=price_to_float(flat['price']), area=area_to_float(flat['area']))
             db.session.add(fl)
     except:
         print("invalid data")
         return jsonify({'result': 'error'}), 403
     else:
         db.session.commit()
-    return json.dumps({'result': 'ok'}), 201
+    return jsonify({'result': 'ok'}), 201
 
 
 @app.route('/houses/<int:id>', methods=['PUT'])
@@ -98,3 +99,4 @@ def delete_houses(id):
         return jsonify({'result': 'error', 'message': 'id does not exist'}), 403
     id_delete = 'id - {} deleted'.format(id)
     return jsonify({'result': id_delete}), 202
+
