@@ -51,7 +51,7 @@ def check_next_page_exist(bsObj):
     """
     Проверяем есть ли следующая страница
     """
-    if bsObj.find("i", {"class": "icon-right-open"}):
+    if bsObj.find("link", {"rel": "next"}):
         return True
 
     return False
