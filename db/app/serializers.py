@@ -50,7 +50,7 @@ class SaveHousesSerializer():
 
     def clean_data(self):
         """
-        not best solution but temporarry
+        not best solution but temporary
         """
         data = {}
         for key, val in self.data.items():

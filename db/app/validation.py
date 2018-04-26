@@ -2,8 +2,8 @@ import re
 
 
 def clean_area(area_str):
-    area = re.findall(r'\d{1,4}\.?\d{0,2}', area_str)
-    return round(sum(map(float, area)), 2)
+    area = re.findall(r'\d{1,4}\.?\d{0,2}', area_str)[0]
+    return round(float(area), 2)
 
 
 def clean_price(price_str):

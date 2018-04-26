@@ -101,3 +101,19 @@ def test_update_house():
 #test_get_house()
 #test_delete_house()
 #test_update_house()
+
+def chunk_generator(data, piece):
+    if not data:
+        raise Exception('no data to slice')
+    elif piece < 1:
+        raise Exception('no sence to slice')
+    for i, inx in enumerate(data[::piece]):
+        yield data[i*piece:(i+1)*(piece)]
+
+list1 = list(range(109))
+
+list2 = chunk_generator(list1, 20)
+#list1[20:112] = [1,23,4,6,7]
+for inx in list2:
+    print(inx)
+#print(list1)

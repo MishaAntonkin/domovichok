@@ -2,7 +2,7 @@ from flask import json, request, jsonify
 
 from app import app, db
 from .models import Flat
-from .validation import area_to_float, price_to_float, get_currency
+from .serializers import *
 
 
 @app.route('/', methods=['GET'])
@@ -22,27 +22,9 @@ def get_houses():
 
 @app.route('/houses/filter/', methods=['GET'])
 def get_houses_filter():
-    needed_params = ['price_gte', 'price_lte', 'district']
-    query_filter = []
-    for param in needed_params:
-        cur_param = request.args.get(param)
-        if cur_param == None:
-            continue
-        if param == 'price_gte':
-            query_filter.append(Flat.price > cur_param)
-        elif param == 'price_lte':
-            query_filter.append(Flat.price < cur_param)
-        elif param == 'district':
-            query_filter.append(Flat.district == cur_param)
-    #  need only for test, later delete
-    for i in request.args:
-        print(i)
-        print(request.args[i])
-    print(query_filter)
-    #
-    flats = Flat.query.filter(*query_filter)
+    flats = HousesFilterSerializar(request.args)
     flats_list = []
-    for fl in flats:
+    for fl in flats():
         flats_list.append(fl.row2dict())
     return jsonify(flats_list), 200
 
@@ -61,11 +43,11 @@ def get_house(id):
 @app.route('/houses/', methods=['POST'])
 def save_houses():
     data = request.json
+    print(data)
     try:
         for flat in data:
-            fl = Flat(district='default', name=flat['name'], currency=get_currency(flat['price']),
-                      price=price_to_float(flat['price']), area=area_to_float(flat['area']))
-            db.session.add(fl)
+            fl = SaveHousesSerializer(flat)
+            db.session.add(fl())
     except:
         print("invalid data")
         return jsonify({'result': 'error'}), 403
