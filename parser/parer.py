@@ -34,13 +34,19 @@ def get_area(bsObj):
         return "Информация не найдена"
 
 
+def get_district(bsObj):
+    district = bsObj.find("p", {"class": "realty-card-header__subtitle"}).find("a").get_text()
+
+    return district
+
+
 def get_data_from_page(bsObj, data):
     """
     Получаем данные с конкретной страницы
     """
     for house_info in bsObj.findAll("div", {"class": "realty-card-inner"}):
         house_data = {"name": get_name(house_info), "price": get_price(house_info),
-                      "area": get_area(house_info)}
+                      "area": get_area(house_info), "district": get_district(house_info)}
 
         data.append(house_data)
 
@@ -82,6 +88,7 @@ def parse_data():
     data = get_data()
     return data
 
+print(parse_data())
 #if __name__ == '__main__':
 #    main()
 
