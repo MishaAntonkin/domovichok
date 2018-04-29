@@ -12,32 +12,29 @@ def get_html(page=1, filter='аренда-квартир-киев'):
     return response
 
 
-def get_name(bsObj):
-    title = bsObj.findAll("div", {"class": "realty-card-header-title"})
-
-    return title[0].get_text()
-
-
-def get_name_jss(bsObj):
-    title = bsObj.find('div', {"class": "jss93"})
+def get_name(bsObj, flag="standard"):
+    if flag == "standard":
+        title = bsObj.find("div", {"class": "realty-card-header-title"})
+    else:
+        title = bsObj.find('div', {"class": "jss93"})
 
     return title.get_text()
 
 
-def get_price(bsObj):
-    price = bsObj.findAll("div", {"class": "realty-card-characteristics__price"})
-
-    return price[0].get_text()
-
-
-def get_price_jss(bsObj):
-    price = bsObj.find("div", {"class": "jss109"})
+def get_price(bsObj, flag="standard"):
+    if flag == "standard":
+        price = bsObj.find("div", {"class": "realty-card-characteristics__price"})
+    else:
+        price = bsObj.find("div", {"class": "jss109"})
 
     return price.get_text()
 
 
-def get_area(bsObj):
-    area = bsObj.findAll("div", {"class": "realty-card-characteristics-list__item"})
+def get_area(bsObj, flag="standard"):
+    if flag == "standard":
+        area = bsObj.findAll("div", {"class": "realty-card-characteristics-list__item"})
+    else:
+        area = bsObj.findAll("li")
 
     # Ждем исключения, если не указана площадь.
     try:
@@ -46,17 +43,11 @@ def get_area(bsObj):
         return "Информация не найдена"
 
 
-def get_area_jss(bsObj):
-    area = bsObj.findAll("li")
-
-    try:
-        return area[1].get_text()
-    except IndexError as ae:
-        return "Информация не найдена"
-
-
-def get_district(bsObj):
-    district = bsObj.find("p", {"class": "realty-card-header__subtitle"}).find("a")
+def get_district(bsObj, flag="standard"):
+    if flag == "standard":
+        district = bsObj.find("p", {"class": "realty-card-header__subtitle"}).find("a")
+    else:
+        district = bsObj.find("div", {"class": "jss98"}).find("a")
 
     try:
         return district.get_text()
@@ -64,13 +55,16 @@ def get_district(bsObj):
         return "Информация не найдена"
 
 
-def get_district_jss(bsObj):
-    district = bsObj.find("div", {"class": "jss98"}).find("a")
+def get_url(bsObj, flag="standard"):
+    if flag == "standard":
+        mediator_url = bsObj.find("a", {"class": "realty-card-header__link-wrapper"})["href"]
+    else:
+        mediator_url = bsObj.find("a", {"class": "jss92"})["href"]
+    new_bsObj = BeautifulSoup(urlopen("https://www.lun.ua{}".format(mediator_url)), "html.parser")
 
-    try:
-        return district.get_text()
-    except AttributeError as ae:
-        return "Информация не найдена"
+    main_url = new_bsObj.find("title").get_text()
+
+    return main_url
 
 
 def get_data_from_page(bsObj, data):
@@ -79,19 +73,18 @@ def get_data_from_page(bsObj, data):
     """
     # Проверяем загрузилась ли страница полностью или есть js код
     if bsObj.find("div", {"class": "cards-container"}):
-        # Если html не содержит js
-        for house_info in bsObj.findAll("div", {"class": "realty-card-inner"}):
-            house_data = {"name": get_name(house_info), "price": get_price(house_info),
-                          "area": get_area(house_info), "district": get_district(house_info)}
-
-            data.append(house_data)
+        flag = "standard"
+        houses_info = bsObj.findAll("div", {"class": "realty-card-inner"})
     else:
-        # Если html содержит js
-        for house_info in bsObj.findAll("div", {"class": "jss89"}):
-            house_data = {"name": get_name_jss(house_info), "price": get_price_jss(house_info),
-                          "area": get_area_jss(house_info), "district": get_district_jss(house_info)}
+        flag = "jss"
+        houses_info = bsObj.findAll("div", {"class": "jss89"})
 
-            data.append(house_data)
+    for house_info in houses_info:
+        house_data = {"name": get_name(house_info, flag), "price": get_price(house_info, flag),
+                      "area": get_area(house_info, flag), "district": get_district(house_info, flag),
+                      "main_url": get_url(house_info, flag)}
+        data.append(house_data)
+
     return data
 
 
@@ -130,7 +123,7 @@ def parse_data():
     data = get_data()
     return data
 
-print(parse_data())
-#if __name__ == '__main__':
+
+# if __name__ == '__main__':
 #    main()
 
