@@ -18,10 +18,22 @@ def get_name(bsObj):
     return title[0].get_text()
 
 
+def get_name_jss(bsObj):
+    title = bsObj.find('div', {"class": "jss93"})
+
+    return title.get_text()
+
+
 def get_price(bsObj):
     price = bsObj.findAll("div", {"class": "realty-card-characteristics__price"})
 
     return price[0].get_text()
+
+
+def get_price_jss(bsObj):
+    price = bsObj.find("div", {"class": "jss109"})
+
+    return price.get_text()
 
 
 def get_area(bsObj):
@@ -34,22 +46,52 @@ def get_area(bsObj):
         return "Информация не найдена"
 
 
-def get_district(bsObj):
-    district = bsObj.find("p", {"class": "realty-card-header__subtitle"}).find("a").get_text()
+def get_area_jss(bsObj):
+    area = bsObj.findAll("li")
 
-    return district
+    try:
+        return area[1].get_text()
+    except IndexError as ae:
+        return "Информация не найдена"
+
+
+def get_district(bsObj):
+    district = bsObj.find("p", {"class": "realty-card-header__subtitle"}).find("a")
+
+    try:
+        return district.get_text()
+    except AttributeError as ae:
+        return "Информация не найдена"
+
+
+def get_district_jss(bsObj):
+    district = bsObj.find("div", {"class": "jss98"}).find("a")
+
+    try:
+        return district.get_text()
+    except AttributeError as ae:
+        return "Информация не найдена"
 
 
 def get_data_from_page(bsObj, data):
     """
     Получаем данные с конкретной страницы
     """
-    for house_info in bsObj.findAll("div", {"class": "realty-card-inner"}):
-        house_data = {"name": get_name(house_info), "price": get_price(house_info),
-                      "area": get_area(house_info), "district": get_district(house_info)}
+    # Проверяем загрузилась ли страница полностью или есть js код
+    if bsObj.find("div", {"class": "cards-container"}):
+        # Если html не содержит js
+        for house_info in bsObj.findAll("div", {"class": "realty-card-inner"}):
+            house_data = {"name": get_name(house_info), "price": get_price(house_info),
+                          "area": get_area(house_info), "district": get_district(house_info)}
 
-        data.append(house_data)
+            data.append(house_data)
+    else:
+        # Если html содержит js
+        for house_info in bsObj.findAll("div", {"class": "jss89"}):
+            house_data = {"name": get_name_jss(house_info), "price": get_price_jss(house_info),
+                          "area": get_area_jss(house_info), "district": get_district_jss(house_info)}
 
+            data.append(house_data)
     return data
 
 
@@ -73,7 +115,7 @@ def get_data():
     while check_next_page_exist(bsObj):
         page_number += 1
 
-        if page_number == 2:
+        if page_number == 3:
             return data
 
         print("Существует страница №", page_number)
