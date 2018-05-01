@@ -12,6 +12,9 @@ def main():
 
 @app.route('/houses/', methods=['GET'])
 def get_houses():
+    if 'page' in request.args:
+        #paginate
+        pass
     flats = Flat.query.all()
     return_list = []
 

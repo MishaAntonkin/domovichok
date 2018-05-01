@@ -2,6 +2,8 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import urllib
 
+from utils import *
+
 
 def get_html(page=1, filter='аренда-квартир-киев'):
     """
@@ -80,9 +82,11 @@ def get_data_from_page(bsObj, data):
         houses_info = bsObj.findAll("div", {"class": "jss89"})
 
     for house_info in houses_info:
-        house_data = {"name": get_name(house_info, flag), "price": get_price(house_info, flag),
-                      "area": get_area(house_info, flag), "district": get_district(house_info, flag),
-                      "main_url": get_url(house_info, flag)}
+        price = get_price(house_info, flag)
+        area = get_area(house_info, flag)
+        house_data = {"name": get_name(house_info, flag), "price": clean_price(price),
+                      "area": clean_area(area), "district": get_district(house_info, flag),
+                      "url": get_url(house_info, flag), 'currency': clean_currency(price)}
         data.append(house_data)
 
     return data

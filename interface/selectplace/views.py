@@ -22,8 +22,11 @@ class FillData(View):
         print(request.POST.dict())
         houses = form.data.get('houses')
         criterias = form.data.get('cri')
-        r = requests.post('http://127.0.0.1:5000/', timeout=10, data=request.body)
-        print(r.json())
+        r = requests.post('http://127.0.0.1:8003/', timeout=10, data=request.body)
+        try:
+            print(r.json())
+        except:
+            print('Algorithm error')
         if form.is_valid():
             r = requests.post('http://127.0.0.1:5000/', data=form.cleaned_data)
             print(r.text)

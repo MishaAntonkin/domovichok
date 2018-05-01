@@ -15,7 +15,7 @@ class HousesFilterSerializar():
         query_filter = []
         for param in self.needed_params:
             cur_param = self.unfilters.get(param)
-            if cur_param == None:
+            if cur_param == None or cur_param == '':
                 continue
             if param == 'price_gte':
                 query_filter.append(Flat.price > cur_param)
@@ -27,7 +27,7 @@ class HousesFilterSerializar():
                 query_filter.append(Flat.currency == cur_param)
             elif param == 'area':
                 query_filter.append(Flat.area == cur_param)
-
+        print(query_filter)
         return self.model.query.filter(*query_filter)
 
 
@@ -55,10 +55,9 @@ class SaveHousesSerializer():
         data = {}
         for key, val in self.data.items():
             if key == 'area':
-                data[key] = clean_area(val)
+                data[key] = float(val)
             elif key == 'price':
-                data[key] = clean_price(val)
-                data['currency'] = clean_currency(val)
+                data[key] = float(val)
             else:
                 data[key] = val
         print(data)
