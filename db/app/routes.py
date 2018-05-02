@@ -12,30 +12,39 @@ def main():
 
 @app.route('/houses/', methods=['GET'])
 def get_houses():
-    if 'page' in request.args:
-        #paginate
-        pass
-    flats = Flat.query.all()
+    page = request.args.get('page', 1, type=int)
+    flats = Flat.query.paginate(page, app.config['POSTS_PER_PAGE'], False)
     return_list = []
-
-    for fl in flats:
+    for fl in flats.items:
         return_list.append(fl.row2dict())
-    return jsonify(return_list), 200
+    response = {
+        'has_next': flats.has_next,
+        'has_prev': flats.has_prev,
+        'data': return_list
+    }
+    return jsonify(response), 200
 
 
 @app.route('/houses/filter/', methods=['GET'])
 def get_houses_filter():
     flats = HousesFilterSerializar(request.args)
+    page = request.args.get('page', 1, type=int)
+    flats = flats().paginate(page, app.config['POSTS_PER_PAGE'], False)
     flats_list = []
-    for fl in flats():
+    for fl in flats.items:
         flats_list.append(fl.row2dict())
-    return jsonify(flats_list), 200
+    response = {
+        'has_next': flats.has_next,
+        'has_prev': flats.has_prev,
+        'data': flats_list
+    }
+    return jsonify(response), 200
 
 
 @app.route('/houses/<int:id>/', methods=['GET'])
-def get_house(id):
+def get_house(pk):
     try:
-        flats = Flat.query.get(id)
+        flats = Flat.query.get(pk)
     except:
         return jsonify({'result': 'error', 'message': 'db error'}), 403
     if flats is None:
@@ -74,14 +83,14 @@ def update_houses():
 
 
 @app.route('/houses/<int:id>/', methods=['DELETE'])
-def delete_houses(id):
+def delete_houses(pk):
     try:
-        flat = Flat.query.get(id)
+        flat = Flat.query.get(pk)
         print(flat)
         db.session.delete(flat)
         db.session.commit()
     except:
         return jsonify({'result': 'error', 'message': 'id does not exist'}), 403
-    id_delete = 'id - {} deleted'.format(id)
+    id_delete = 'id - {} deleted'.format(pk)
     return jsonify({'result': id_delete}), 202
 
