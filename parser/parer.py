@@ -1,17 +1,33 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import urllib
+import requests
 
 from utils import *
+
+
+def get_headers():
+    """
+    Указываем настройки барузера в заголовках http запроса
+    """
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0",
+               "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"}
+
+    return headers
 
 
 def get_html(page=1, filter='аренда-квартир-киев'):
     """
     Получаем html сайта
     """
+    session = requests.Session()
     cyrillic_part_url = urllib.request.quote(filter)
-    response = urlopen('https://www.lun.ua/{}?page={}'.format(cyrillic_part_url, page))
-    return response
+    response = session.get('https://www.lun.ua/{}?page={}'.format(cyrillic_part_url, page),
+                           headers=get_headers())
+    session.close()
+    # response = urlopen('https://www.lun.ua/{}?page={}'.format(cyrillic_part_url, page))
+
+    return response.text
 
 
 def get_name(bsObj, flag="standard"):
@@ -126,7 +142,6 @@ def get_data():
 def parse_data():
     data = get_data()
     return data
-
 
 # if __name__ == '__main__':
 #    main()
