@@ -13,7 +13,7 @@ console.log(csrftoken);
 $("#send-data").click(
     function () {
         var filters = getFilters();
-        var criterias = [{name: "price", priority: 4}, {name: "district", priority: 6}]
+        var criterias = [{name: "price", priority: 4}, ]
         var info = {filters: filters, cri: criterias}
         console.log(info);
         $.ajax({

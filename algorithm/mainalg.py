@@ -225,7 +225,7 @@ def calculate_weight_of_houses(houses, criteria):
         houses[i].set_weight(total_points[i])
 
 
-def main(hou , cri):
+def main(hou, cri):
     #hou = [{"name": "house1", "price": 100, "len_to_metro": 3000},
     #       {"name": "house1", "price": 60, "len_to_metro": 5000}]  # Пример данных про дома
     array = create_array_of_houses(hou)  # Создаем массив объектов домов

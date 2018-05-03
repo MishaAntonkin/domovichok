@@ -6,6 +6,28 @@ import requests
 from utils import *
 
 
+class ParseSession:
+
+    def __init__(self):
+        self.session = requests.Session()
+        self.headers = get_headers()
+
+    def __call__(self, page=1, filter='аренда-квартир-киев'):
+        cyrillic_part_url = urllib.request.quote(filter)
+        response = self.session.get('https://www.lun.ua/{}?page={}'.format(cyrillic_part_url, page),
+                                    headers=self.headers)
+        return response.text
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def close(self):
+        self.session.close()
+
+
 def get_headers():
     """
     Указываем настройки барузера в заголовках http запроса
@@ -14,20 +36,6 @@ def get_headers():
                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"}
 
     return headers
-
-
-def get_html(page=1, filter='аренда-квартир-киев'):
-    """
-    Получаем html сайта
-    """
-    session = requests.Session()
-    cyrillic_part_url = urllib.request.quote(filter)
-    response = session.get('https://www.lun.ua/{}?page={}'.format(cyrillic_part_url, page),
-                           headers=get_headers())
-    session.close()
-    # response = urlopen('https://www.lun.ua/{}?page={}'.format(cyrillic_part_url, page))
-
-    return response.text
 
 
 def get_name(bsObj, flag="standard"):
@@ -98,11 +106,15 @@ def get_data_from_page(bsObj, data):
         houses_info = bsObj.findAll("div", {"class": "jss89"})
 
     for house_info in houses_info:
-        price = get_price(house_info, flag)
-        area = get_area(house_info, flag)
-        house_data = {"name": get_name(house_info, flag), "price": clean_price(price),
-                      "area": clean_area(area), "district": get_district(house_info, flag),
-                      "url": get_url(house_info, flag), 'currency': clean_currency(price)}
+        try:
+            price = get_price(house_info, flag)
+            area = get_area(house_info, flag)
+            house_data = {"name": get_name(house_info, flag), "price": clean_price(price),
+                        "area": clean_area(area), "district": get_district(house_info, flag),
+                        "url": get_url(house_info, flag), 'currency': clean_currency(price)}
+        except:
+            print('One flat is skipped')
+            continue
         data.append(house_data)
 
     return data
@@ -119,22 +131,23 @@ def check_next_page_exist(bsObj):
 
 
 def get_data():
-    data = []
-    print("Сканирем страницу № 1")
-    bsObj = BeautifulSoup(get_html(), "html.parser")
-    get_data_from_page(bsObj, data)
-
-    page_number = 1
-    while check_next_page_exist(bsObj):
-        page_number += 1
-
-        if page_number == 3:
-            return data
-
-        print("Существует страница №", page_number)
-        print("Сканирем страницу №", page_number)
-        bsObj = BeautifulSoup(get_html(page_number), "html.parser")
+    with ParseSession() as get_html:
+        data = []
+        print("Сканирем страницу № 1")
+        bsObj = BeautifulSoup(get_html(), "html.parser")
         get_data_from_page(bsObj, data)
+
+        page_number = 1
+        while check_next_page_exist(bsObj):
+            page_number += 1
+
+            if page_number == 3:
+                return data
+
+            print("Существует страница №", page_number)
+            print("Сканирем страницу №", page_number)
+            bsObj = BeautifulSoup(get_html(page_number), "html.parser")
+            get_data_from_page(bsObj, data)
 
     return data
 
