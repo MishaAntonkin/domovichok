@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="row main-inf">
-    <div class=" col-sm-8 mx-auto my-5">
+    <div class=" col-sm-8 mx-auto my-4">
         <h3>Choose optimal charracteristics</h3>
         <form class="border rounded p-4 card-outline-primary" method="post" action="{% url 'selectplace:filldata'%}">
             {% csrf_token %}
@@ -12,6 +12,20 @@
                 <div class="btn btn-success" id="send-data">Send</div>
             </p>
         </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-8 mx-auto my-2">
+        <div class="">
+            <button class="btn btn-danger" id="clean">Clean</button>
+        </div>
+        <ul class="border rounded p-4 card-outline-primary flat" id="optimal-flats">
+            <ol class="one-flat">
+                <span>Street: Dnipro st.</span>
+                <p>Price:1200<span>UAH</span></p>
+                <span><a href="endpage">See full information</a></span>
+            </ol>
+        </ul>
     </div>
 </div>
 <script>

@@ -6,7 +6,7 @@ import requests
 from utils import *
 
 
-class ParseSession:
+class ParsingSession:
 
     def __init__(self):
         self.session = requests.Session()
@@ -131,7 +131,7 @@ def check_next_page_exist(bsObj):
 
 
 def get_data():
-    with ParseSession() as get_html:
+    with ParsingSession() as get_html:
         data = []
         print("Сканирем страницу № 1")
         bsObj = BeautifulSoup(get_html(), "html.parser")

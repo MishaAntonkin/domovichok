@@ -4,6 +4,7 @@ import json
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
+from django.http import JsonResponse
 
 from .forms import PlaceFilterForm
 # Create your views here.
@@ -22,7 +23,7 @@ class FillData(View):
         print(request.POST.dict())
         houses = form.data.get('houses')
         criterias = form.data.get('cri')
-        #r = requests.post('http://127.0.0.1:8003/', timeout=10, data=request.body)
+        r = requests.post('http://127.0.0.1:8003/', timeout=10, data=request.body)
         try:
             print(r.json())
         except:
@@ -31,4 +32,4 @@ class FillData(View):
             #r = requests.post('http://127.0.0.1:5000/', data=form.cleaned_data)
             print(r.text)
             print(form.cleaned_data)
-        return redirect(reverse('selectplace:filldata'))
+        return JsonResponse(r.json(), safe=False)

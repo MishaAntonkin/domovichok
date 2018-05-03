@@ -16,7 +16,7 @@ $("#send-data").click(
         var criterias = [{name: "price", priority: 4}, ]
         var info = {filters: filters, cri: criterias}
         console.log(info);
-        $.ajax({
+        var request = $.ajax({
             method: "POST",
             headers: {
                 'Accept': 'application/json',
@@ -26,6 +26,12 @@ $("#send-data").click(
             url: this_url,
             data: JSON.stringify(info)
             });
+
+        console.log(request);
+        request.done(function (data) {
+            console.log(data);
+            console.log();
+        });
     }
 )
 
@@ -39,5 +45,17 @@ function getFilters() {
     return {
         district: district, name: name, currency: currency, price_lte: price_lte, price_gte: price_gte
     }
+}
+
+var TEST_DATA_TO_RENDER = {
+    has_next: false,
+    has_prev: false,
+    data: [{area:"Kiev", currency: "UAH", district: "Dnipr", id: "2", name: "Pechersk", price: "120.94", url: "None"},
+        {area:"Kiev", currency: "UAH", district: "Dnipr", id: "3", name: "Schevchenko", price: "120.94", url: "None"}
+    ]
+}
+
+function render_new_flats() {
+
 }
 

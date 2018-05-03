@@ -22,19 +22,26 @@ def index():
     r = requests.get('{}/houses/filter/'.format(app.config['DB_ADDRESS']), params=data['filters'])
     if r.status_code == 200:
         h_external = r.json()
-        return jsonify(h_external), 200
+        print(h_external)
     try:
-        houses = main(h_external, data['cri'])
-    except:
+        houses = main(h_external['data'], data['cri'])
+        print(houses)
+        houses_w = []
+        for house in houses:
+           houses_w.append(house.data)
+    except Exception as E:
+        print(E)
         print('Something went wrong')
+    else:
+        print(houses_w)
+        return jsonify(houses_w), 200
     #print(houses)
     #houses_w= []
     #for house in houses:
     #    houses_w.append(house.data)
     #print(houses_w)
     #return_data = json.dumps(houses_w)
-    return 'yes' #return_data
-
+    return jsonify('Error'), 400
 
 def check_ip(ip_addr):
     return True if ip_addr in app.config['WHITE_LIST'] else False
