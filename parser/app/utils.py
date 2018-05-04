@@ -1,11 +1,15 @@
 import re
 
+import requests
+
+from parer import parse_data
+
 
 def chunk_generator(data, piece):
     if not data:
         raise Exception('no data to slice')
     elif piece < 1:
-        raise Exception('no sence to slice')
+        raise Exception('no sense to slice')
     for i, inx in enumerate(data[::piece]):
         yield data[i*piece:(i+1)*piece]
 
@@ -30,3 +34,19 @@ def clean_currency(raw_price):
         return "USD"
     elif '€' in raw_price:
         return 'EUR'
+
+
+def send_data(rest_db_host):
+    return True
+    return_data = parse_data()
+    print(return_data)
+    chunks = chunk_generator(return_data, 20)
+    for data in chunks:
+        print(' - {}'.format(data))
+        r = requests.post('{}/houses/'.format(rest_db_host), json=data)
+        if r.status_code != 201:
+            #  write something in log
+            print('error send data')
+            break
+    else:
+        return True

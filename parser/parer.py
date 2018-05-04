@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import urllib
 import requests
 
-from utils import *
+from app.utils import *
 
 
 class ParsingSession:

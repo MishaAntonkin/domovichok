@@ -19,7 +19,7 @@ class Flat(BaseDBModel):
     price = db.Column(db.Float(precision=2))
     area = db.Column(db.Float(precision=2), index=True)
     currency = db.Column(db.String(3), index=True)
-    url = db.Column(db.Text())
+    url = db.Column(db.Text(), index=True)
 
     def __repr__(self):
         return '<User {}>'.format(self.id)

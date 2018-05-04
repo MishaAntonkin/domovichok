@@ -19,12 +19,9 @@ def index():
         print(type(data))
     else:
         data = {'filters': {'district': 'Dnipr'}}
-    r = requests.get('{}/houses/filter/'.format(app.config['DB_ADDRESS']), params=data['filters'])
-    if r.status_code == 200:
-        h_external = r.json()
-        print(h_external)
+    flats_to_alg = get_all_data(data['filters'])
     try:
-        houses = main(h_external['data'], data['cri'])
+        houses = main(flats_to_alg, data['cri'])
         print(houses)
         houses_w = []
         for house in houses:
@@ -35,13 +32,28 @@ def index():
     else:
         print(houses_w)
         return jsonify(houses_w), 200
-    #print(houses)
-    #houses_w= []
-    #for house in houses:
-    #    houses_w.append(house.data)
-    #print(houses_w)
-    #return_data = json.dumps(houses_w)
     return jsonify('Error'), 400
+
 
 def check_ip(ip_addr):
     return True if ip_addr in app.config['WHITE_LIST'] else False
+
+
+def get_all_data(filters):
+    if 'page' not in filters:
+        filters['page'] = 1
+    filtered_flats = []
+    with requests.session() as session:
+        has_next = True
+        while has_next:
+            r = session.get('{}/houses/filter/'.format(app.config['DB_ADDRESS']), params=filters)
+            if r.status_code == 200:
+                resp_data = r.json()
+                filtered_flats.extend(resp_data['data'])
+                has_next = resp_data['has_next']
+                if has_next:
+                    filters['page'] += 1
+            else:
+                print('Error from db in algorthm')
+                has_next = False
+    return filtered_flats
