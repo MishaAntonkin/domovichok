@@ -205,27 +205,48 @@ def calculate_weight_of_criteria(criteria):
         criteria[iterator].set_weight(points[iterator])
 
 
-def calculate_weight_of_houses(houses, criteria):
+def new_less_function(array_of_parameter):
+    """
+    Функция оценки параметров в которой большая оценка дается тому, кто имеет меньшее
+    значение параметра
+    """
+    array = [1 / value for value in array_of_parameter]
+    result_sum = sum(array)
+
+    return [value / result_sum for value in array]
+
+
+def new_more_function(array_of_parameter):
+    """
+    Функция оценки параметров в которой большая оценка дается тому, кто имеет большее
+    значение параметра
+    """
+    result_sum = sum(array_of_parameter)
+
+    return [value / result_sum for value in array_of_parameter]
+
+
+def calculate_weight_of_houses(houses, criterias):
     """
     Вычисляем веса домов
     """
     total_points = [0 for i in range(len(houses))]
 
-    for i in range(len(criteria)):
+    for criteria in criterias:
         characteristic = []
-        for j in range(len(houses)):
-            characteristic.append(houses[j].get_parameter(criteria[i].get_parameter("name")))
+        for house in houses:
+            characteristic.append(house.get_parameter(criteria.get_parameter("name")))
 
-        points = less_function(characteristic)
+        points = new_less_function(characteristic)
 
         for j in range(len(points)):
-            total_points[j] += points[j] * criteria[i].get_parameter("weight")
+            total_points[j] += (points[j]) * criteria.get_parameter("weight")
 
-    for i in range(len(total_points)):
-        houses[i].set_weight(total_points[i])
+    for i, v in enumerate(total_points):
+        houses[i].set_weight(v)
 
 
-def main(hou, cri):
+def main(hou , cri):
     #hou = [{"name": "house1", "price": 100, "len_to_metro": 3000},
     #       {"name": "house1", "price": 60, "len_to_metro": 5000}]  # Пример данных про дома
     array = create_array_of_houses(hou)  # Создаем массив объектов домов
