@@ -205,7 +205,7 @@ def calculate_weight_of_criteria(criteria):
         criteria[iterator].set_weight(points[iterator])
 
 
-def new_less_function(array_of_parameter):
+def normalization_low_priority(array_of_parameter):
     """
     Функция оценки параметров в которой большая оценка дается тому, кто имеет меньшее
     значение параметра
@@ -216,7 +216,7 @@ def new_less_function(array_of_parameter):
     return [value / result_sum for value in array]
 
 
-def new_more_function(array_of_parameter):
+def normalization_high_priority(array_of_parameter):
     """
     Функция оценки параметров в которой большая оценка дается тому, кто имеет большее
     значение параметра
@@ -237,7 +237,10 @@ def calculate_weight_of_houses(houses, criterias):
         for house in houses:
             characteristic.append(house.get_parameter(criteria.get_parameter("name")))
 
-        points = new_less_function(characteristic)
+        if criteria.get_parameter("reverse"):
+            points = normalization_low_priority(characteristic)
+        else:
+            points = normalization_high_priority(characteristic)
 
         for j in range(len(points)):
             total_points[j] += (points[j]) * criteria.get_parameter("weight")
