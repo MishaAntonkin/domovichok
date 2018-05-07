@@ -30,6 +30,7 @@ def index():
         print(E)
         print('Something went wrong')
     else:
+        houses_w.sort(key=lambda item: item['weight'], reverse=True)
         print(houses_w)
         return jsonify(houses_w), 200
     return jsonify('Error'), 400

@@ -5,3 +5,25 @@
 .main-inf {
     min-height: 60vh;
 }
+
+.one-flat {
+    background-color: rgba(92, 184, 92, 0.6);
+    list-style-position: inside;
+    vertical-align: top;
+    padding: 8px;
+}
+
+.one-flat > p {
+    display: inline-block;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.one-flat-img, .one-flat-description {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.one-flat-description p {
+    margin-bottom: 4px;
+}

@@ -31,6 +31,9 @@ $("#send-data").click(
         request.done(function (data) {
             console.log(data);
             console.log();
+            data_to_render = data;
+            clear_all_flates();
+            render_new_flats();
         });
     }
 )
@@ -47,15 +50,51 @@ function getFilters() {
     }
 }
 
-var TEST_DATA_TO_RENDER = {
+
+var data_to_render = [{'area': null, 'currency': 'UAH', 'district': 'Dnipr', 'id': 3, 'name': 'text', 'price': 12.94, 'url': null, 'weight':
+    0.8230043810998888}, {'area': null, 'currency': 'UAH', 'district': 'Dnipr', 'id': 2, 'name': 'text', 'price': 120.94,
+    'url': null, 'weight': 0.08805752184085135}, {'area': null, 'currency': 'UAH', 'district': 'Dnipr', 'id': 5, 'name':
+    'text', 'price': 120.94, 'url': null, 'weight': 0.08805752184085135}, {'area': null, 'currency': 'UAH', 'district':
+    'Dnipr', 'id': 108, 'name': 'text', 'price': 12094.0, 'url': null, 'weight': 0.0008805752184085135}];
+
+function render_new_flats() {
+    var optimalFlats = d.getElementById('optimal-flats');
+    var data_to_renderslen = data_to_render.length;
+    for(var i = 0; i < data_to_renderslen; i++){
+        console.log(data_to_render[i].url);
+       /* optimalFlats.innerHTML += '<li class="one-flat"><span>Street: '+data_to_render[i].name+'.\<' +
+            '/span><p>Price:'+data_to_render[i].price+'<span> '+data_to_render[i].currency+'</span></p><span><a href="'+data_to_render[i].url+'">More</a>\<' +
+            '/span> </li>';*/
+       if (data_to_render[i].src) {
+           var src_img = '';
+       }
+        optimalFlats.innerHTML +='<li class="one-flat">\n' +
+        '                <div class="one-flat-description">\n' +
+        '                    <p>Street: '+data_to_render[i].name+'</p>\n' +
+        '                    <p>District: '+data_to_render[i].district+'</p>\n' +
+        '                    <p>Price:'+data_to_render[i].price+'<span> '+data_to_render[i].currency+'</span></p>\n' +
+        '                    <p>Area: '+data_to_render[i].area+' м²</p>\n' +
+        '                    <p><a target="_blank" href="'+data_to_render[i].url+'">More</a></p>\n' +
+        '                </div>\n' +
+        '            </li>';
+    }
+}
+
+function clear_all_flates() {
+    var optimalFlats = d.getElementById('optimal-flats');
+    while (optimalFlats.firstChild) {
+        optimalFlats.removeChild(optimalFlats.firstChild);
+    }
+}
+$('#clean').click(clear_all_flates);
+
+/*render_new_flats();*/
+
+/*clear_all_flates();*/
+/*var TEST_DATA_TO_RENDER = {
     has_next: false,
     has_prev: false,
     data: [{area:"Kiev", currency: "UAH", district: "Dnipr", id: "2", name: "Pechersk", price: "120.94", url: "None"},
         {area:"Kiev", currency: "UAH", district: "Dnipr", id: "3", name: "Schevchenko", price: "120.94", url: "None"}
     ]
-}
-
-function render_new_flats() {
-
-}
-
+}*/

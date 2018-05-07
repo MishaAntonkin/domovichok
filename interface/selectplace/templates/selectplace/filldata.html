@@ -8,7 +8,6 @@
             {% csrf_token %}
             {{form.as_p}}
             <p>
-                <label></label>
                 <div class="btn btn-success" id="send-data">Send</div>
             </p>
         </form>
@@ -19,13 +18,20 @@
         <div class="">
             <button class="btn btn-danger" id="clean">Clean</button>
         </div>
-        <ul class="border rounded p-4 card-outline-primary flat" id="optimal-flats">
-            <ol class="one-flat">
-                <span>Street: Dnipro st.</span>
-                <p>Price:1200<span>UAH</span></p>
-                <span><a href="endpage">See full information</a></span>
-            </ol>
-        </ul>
+        <ol class="border rounded p-4 card-outline-primary flat" id="optimal-flats">
+            <!--<li class="one-flat">
+                <div class="one-flat-img">
+                    <img src="https://lunimg.appspot.com/lun_ua/344/344/422527627.jpg" style="width: 220px; height:220px;">
+                </div>
+                <div class="one-flat-description">
+                    <p>Street: Dnipro st.</p>
+                    <p>District: Kiev</p>
+                    <p>Price:1200<span>UAH</span></p>
+                    <p>Area: 120 м²</p>
+                    <p><a href="endpage">More</a></p>
+                </div>
+            </li>-->
+        </ol>
     </div>
 </div>
 <script>
