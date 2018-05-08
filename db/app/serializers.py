@@ -1,6 +1,7 @@
 from flask import request
 
 from .models import *
+from . import db
 from .validation import *
 
 
@@ -36,8 +37,10 @@ class SaveHousesSerializer():
 
     def __init__(self, data):
         self.data = data
+        self.flat = None
         if self.validate():
             self.clean_data()
+            self.create_or_update()
 
     def validate(self):
         obj_keys = {i for i in dir(self.model) if not i.startswith('__')}
@@ -60,10 +63,20 @@ class SaveHousesSerializer():
                 data[key] = float(val)
             else:
                 data[key] = val
-        print(data)
         self.data = data
 
+    def create_or_update(self):
+        exist_flat = Flat.query.filter_by(url=self.data['url']).first()
+        if exist_flat is not None:
+            print('On create update')
+            exist_flat.update(self.data)
+        else:
+            print('On create create')
+            exist_flat = Flat(**self.data)
+            db.session.add(exist_flat)
+        self.flat = exist_flat
+
     def __call__(self, *args, **kwargs):
-        return Flat(**self.data)
+        return self.flat
 
 

@@ -41,11 +41,12 @@ def get_houses_filter():
     return jsonify(response), 200
 
 
-@app.route('/houses/<int:id>/', methods=['GET'])
+@app.route('/houses/<int:pk>/', methods=['GET'])
 def get_house(pk):
     try:
         flats = Flat.query.get(pk)
-    except:
+    except Exception as e:
+        print(e)
         return jsonify({'result': 'error', 'message': 'db error'}), 403
     if flats is None:
         return jsonify({'result': 'error', 'message': 'id does not exist'}), 403
@@ -59,30 +60,31 @@ def save_houses():
     try:
         for flat in data:
             fl = SaveHousesSerializer(flat)
-            db.session.add(fl())
-    except:
-        print("invalid data")
+    except Exception as e:
+        print("invalid data - {}".format(e))
         return jsonify({'result': 'error'}), 403
     else:
         db.session.commit()
     return jsonify({'result': 'ok'}), 201
 
 
-@app.route('/houses/<int:id>', methods=['PUT'])
-def update_houses():
-
-    flat = Flat.query.get(id)
+@app.route('/houses/<int:pk>/', methods=['PUT'])
+def update_houses(pk):
+    flat = Flat.query.get(pk)
     if flat is None:
         return jsonify({'result': 'error', 'message': 'id does not exist'}), 403
     try:
         data = request.json
         flat.update(data)
-    except:
+    except Exception as e:
+        print(e)
         return jsonify({'result': 'error', 'message': 'invalid data to update'}), 403
-    return json.dumps({'result': 'ok'})
+    else:
+        db.session.commit()
+    return jsonify({'result': 'ok'}), 200
 
 
-@app.route('/houses/<int:id>/', methods=['DELETE'])
+@app.route('/houses/<int:pk>/', methods=['DELETE'])
 def delete_houses(pk):
     try:
         flat = Flat.query.get(pk)

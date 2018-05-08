@@ -40,8 +40,18 @@ def test_save_houses():
     /houses/ POST
     test to save multiple houses
     """
-    #test 1
-    data = [{'name': "text", 'district': "Dnipr", 'price': '12.94'},{'name': "text", 'district': "Dnipr", 'price': '120.94'}]
+    # test 1
+    data = [{
+        "area": 60.0,
+        "currency": "UAH",
+        "district": "\u041f\u0435\u0447\u0435\u0440\u0441\u043a\u0438\u0439",
+        "id": 145,
+        "name": "\u0443\u043b. \u041b\u0430\u0432\u0440\u0441\u043a\u0430\u044f, 23",
+        "price": 12000.0,
+        "url": "https://0630644319.est.ua/14793308/"
+        }, {"area": 55.0, "currency": "UAH", "district": "\u041f\u0435\u0447\u0435\u0440\u0441\u043a\u0438\u0439",
+            "id": 146, "name": "\u0443\u043b. \u041b\u0430\u0432\u0440\u0441\u043a\u0430\u044f, 23", "price": 12000.0,
+            "url": "https://0630644319.est.ua/14793309/"}]
     r = requests.post('http://127.0.0.1:8001/houses/', json=data)
     print(r.status_code)
     print(r.json())
@@ -49,9 +59,9 @@ def test_save_houses():
 
     #test 2
     data = {'name': "text", 'district': "Dnipr", 'price': '12.94'}
-    r = requests.post('http://127.0.0.1:8001/houses/', json=data)
-    print(r.status_code)
-    print(r.json())
+    #r = requests.post('http://127.0.0.1:8001/houses/', json=data)
+    #print(r.status_code)
+    #print(r.json())
 
 
 def test_get_houses():
@@ -90,17 +100,19 @@ def test_update_house():
         /houses/<int:id>/ PUT
         test to update object
         """
-    price = random.randint(0, 100)
-    r = requests.put('http://127.0.0.1:8001/houses/1/', json={'price': price})
+    price = random.randint(100, 1000)
+    r = requests.put('http://127.0.0.1:8001/houses/2/', json={'price': price})
     print(r.status_code)
     print(r.json())
+    new_price = requests.get('http://127.0.0.1:8001/houses/2/', json={'price': price}).json()['price']
+    print('Update_ success {}'.format(price == new_price))
 
 
 #test_save_houses()
 #test_get_houses()
 #test_get_house()
 #test_delete_house()
-#test_update_house()
+test_update_house()
 
 def chunk_generator(data, piece):
     if not data:
@@ -112,8 +124,8 @@ def chunk_generator(data, piece):
 
 list1 = list(range(109))
 
-list2 = chunk_generator(list1, 20)
+#list2 = chunk_generator(list1, 20)
 #list1[20:112] = [1,23,4,6,7]
-for inx in list2:
-    print(inx)
+#for inx in list2:
+#    print(inx)
 #print(list1)
