@@ -1,15 +1,44 @@
+import re
+
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import urllib
 import requests
+from stem.control import Controller
+from stem import Signal
 
 from app.utils import *
+
+
+CONTROLLER_PASSWORD = 'sdf23@#T%1DFSFbn'
+# 'sdf23@#T%1DFSFbn'
+
+
+def renew_connection():
+    global CONTROLLER_PASSWORD
+    with Controller.from_port(port=9051) as controller:
+        controller.authenticate(password=CONTROLLER_PASSWORD)
+        controller.signal(Signal.NEWNYM)
+
+
+def get_tor_session():
+    session = requests.session()
+    # Tor uses the 9050 port as the default socks port
+    session.proxies = {'http':  'socks5://127.0.0.1:9050',
+                       'https': 'socks5://127.0.0.1:9050'}
+    return session
+
+
+def change_ip():
+    renew_connection()
+    return get_tor_session()
 
 
 class ParsingSession:
 
     def __init__(self):
         self.session = requests.Session()
+        #self.session = change_ip()
         self.headers = get_headers()
 
     def __call__(self, page=1, filter='аренда-квартир-киев'):
@@ -42,7 +71,8 @@ def get_name(bsObj, flag="standard"):
     if flag == "standard":
         title = bsObj.find("div", {"class": "realty-card-header-title"})
     else:
-        title = bsObj.find('div', {"class": "jss93"})
+        title = bsObj.find('div', {"class": "jss111"})['title']
+        return title
 
     return title.get_text()
 
@@ -51,7 +81,7 @@ def get_price(bsObj, flag="standard"):
     if flag == "standard":
         price = bsObj.find("div", {"class": "realty-card-characteristics__price"})
     else:
-        price = bsObj.find("div", {"class": "jss109"})
+        price = bsObj.find("div", {"class": "jss119"})
 
     return price.get_text()
 
@@ -73,7 +103,7 @@ def get_district(bsObj, flag="standard"):
     if flag == "standard":
         district = bsObj.find("p", {"class": "realty-card-header__subtitle"}).find("a")
     else:
-        district = bsObj.find("div", {"class": "jss98"}).find("a")
+        district = bsObj.find("div", {"class": "jss116"}).find("a")
 
     try:
         return district.get_text()
@@ -85,12 +115,17 @@ def get_url(bsObj, flag="standard"):
     if flag == "standard":
         mediator_url = bsObj.find("a", {"class": "realty-card-header__link-wrapper"})["href"]
     else:
-        mediator_url = bsObj.find("a", {"class": "jss92"})["href"]
+        mediator_url = bsObj.find("a", {"class": "jss103"})["href"]
     new_bsObj = BeautifulSoup(urlopen("https://www.lun.ua{}".format(mediator_url)), "html.parser")
 
     main_url = new_bsObj.find("title").get_text()
 
     return main_url
+
+
+def get_imgsrc(bsObj):
+    images = re.findall(r'(?<=url2x":").{0,200}[\d]*\.jpg(?=")', bsObj.text)
+    return [t.replace(r'\u002F', '/') for t in images]
 
 
 def get_data_from_page(bsObj, data):
@@ -103,17 +138,21 @@ def get_data_from_page(bsObj, data):
         houses_info = bsObj.findAll("div", {"class": "realty-card-inner"})
     else:
         flag = "jss"
-        houses_info = bsObj.findAll("div", {"class": "jss89"})
-
-    for house_info in houses_info:
+        houses_info = bsObj.findAll("article")
+    print(len(houses_info))
+    images = get_imgsrc(bsObj)
+    for house_info, img in zip(houses_info, images):
+        print(house_info)
         try:
             price = get_price(house_info, flag)
             area = get_area(house_info, flag)
             house_data = {"name": get_name(house_info, flag), "price": clean_price(price),
                         "area": clean_area(area), "district": get_district(house_info, flag),
-                        "url": get_url(house_info, flag), 'currency': clean_currency(price)}
-        except:
+                        "url": get_url(house_info, flag), 'currency': clean_currency(price),
+                          'imgsrc': img}
+        except Exception as e:
             print('One flat is skipped')
+            print(e)
             continue
         data.append(house_data)
 
@@ -141,7 +180,7 @@ def get_data():
         while check_next_page_exist(bsObj):
             page_number += 1
 
-            if page_number == 3:
+            if page_number == 4:
                 return data
 
             print("Существует страница №", page_number)
@@ -159,3 +198,32 @@ def parse_data():
 # if __name__ == '__main__':
 #    main()
 
+def chunk_generator(data, piece):
+    if not data:
+        raise Exception('no data to slice')
+    elif piece < 1:
+        raise Exception('no sense to slice')
+    for i, inx in enumerate(data[::piece]):
+        yield data[i*piece:(i+1)*piece]
+
+
+def clean_area(area_str):
+    area = re.findall(r'\d{1,4}\.?\d{0,2}', area_str)[0]
+    return round(float(area), 2)
+
+
+def clean_price(price_str):
+    prices = re.findall(r'\d+', price_str)
+    if len(prices) == 1:
+        return float(prices[0])
+    else:
+        return float(prices[0]) * 1000 + float(prices[1])
+
+
+def clean_currency(raw_price):
+    if 'грн' in raw_price:
+        return "UAH"
+    elif '$' in raw_price:
+        return "USD"
+    elif '€' in raw_price:
+        return 'EUR'

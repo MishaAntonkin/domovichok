@@ -4,7 +4,7 @@ from flask import request, jsonify
 import requests
 
 from mainalg import main
-from app import app
+from . import app
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -20,12 +20,13 @@ def index():
     else:
         data = {'filters': {'district': 'Dnipr'}}
     flats_to_alg = get_all_data(data['filters'])
+
+    houses = main(flats_to_alg, data['cri'])
+    print(houses)
+    houses_w = []
     try:
-        houses = main(flats_to_alg, data['cri'])
-        print(houses)
-        houses_w = []
         for house in houses:
-           houses_w.append(house.data)
+            houses_w.append(house.data)
     except Exception as E:
         print(E)
         print('Something went wrong')
